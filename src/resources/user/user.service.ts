@@ -14,11 +14,19 @@ export class UserService {
   constructor(private db: DatabaseService) {}
 
   create(createUserDto: CreateUserDto) {
-    return this.db.create(COLLECTION, createUserDto);
+    const user = this.db.create(COLLECTION, {
+      ...createUserDto,
+      version: 1,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    return { ...user, password: undefined };
   }
 
   findAll() {
-    return this.db.read(COLLECTION);
+    return this.db
+      .read(COLLECTION)
+      .map((user) => ({ ...user, password: undefined }));
   }
 
   findOne(id: string) {
@@ -26,7 +34,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException();
     }
-    return user;
+    return { ...user, password: undefined };
   }
 
   updatePassword(id: string, updatePasswordDto: UpdatePasswordDto) {
@@ -38,9 +46,12 @@ export class UserService {
     if (user.password !== oldPassword) {
       throw new ForbiddenException();
     }
-    return this.db.updateOneById(COLLECTION, id, {
+    const updatedUser = this.db.updateOneById(COLLECTION, id, {
+      version: user.version + 1,
+      updatedAt: Date.now(),
       password: newPassword,
     });
+    return { ...updatedUser, password: undefined };
   }
 
   remove(id: string) {
@@ -49,6 +60,6 @@ export class UserService {
       throw new NotFoundException();
     }
     this.db.deleteOneById(COLLECTION, id);
-    return user;
+    return { ...user, password: undefined };
   }
 }

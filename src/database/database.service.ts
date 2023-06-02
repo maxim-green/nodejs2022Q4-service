@@ -37,6 +37,25 @@ export class DatabaseService {
     return this._data[collection]?.find((item) => item.id === id) || null;
   }
 
+  updateManyBy(collection: string, query: DataItem, payload: DataItem) {
+    const updatedItems = [];
+    this._data[collection] = this._data[collection]?.map((item) => {
+      const condition = Object.keys(query).every((key) => {
+        return (
+          item[key] === query[key] ||
+          JSON.stringify(item[key]) === JSON.stringify(query[key])
+        );
+      });
+      if (condition) {
+        const updatedItem = { ...item, ...payload };
+        updatedItems.push(updatedItem);
+        return { ...item, ...payload };
+      }
+      return item;
+    });
+    return updatedItems;
+  }
+
   deleteOneById(collection: string, id: string) {
     if (!this._data[collection]) {
       return null;
