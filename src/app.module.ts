@@ -8,9 +8,13 @@ import { TrackModule } from './resources/track/track.module';
 import { ArtistModule } from './resources/artist/artist.module';
 import { AlbumModule } from './resources/album/album.module';
 import { FavsModule } from './resources/favs/favs.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     DatabaseModule,
     UserModule,
     TrackModule,
